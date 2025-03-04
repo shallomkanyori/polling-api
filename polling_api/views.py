@@ -3,8 +3,8 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 from .models import Poll
 from .serializers import UserSerializer, PollSerializer
-from .permissions import IsPollCreatorOrAdmin
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from .permissions import IsPollCreatorOrAdmin, IsSelfOrAdmin
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -12,7 +12,15 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action == 'list':
+            permission_classes = [IsAuthenticated, IsAdminUser]
+        elif self.action == 'create':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated, IsSelfOrAdmin]
+        return [permission() for permission in permission_classes]
 
 class PollViewSet(viewsets.ModelViewSet):
     """

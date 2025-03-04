@@ -12,3 +12,10 @@ class IsPollCreatorOrAdmin(permissions.BasePermission):
 
         # Write permissions are only allowed to the creator of the poll.
         return obj.created_by == request.user or request.user.is_staff
+
+class IsSelfOrAdmin(permissions.BasePermission):
+    """
+    Custom permission to only allow users to edit themselves.
+    """
+    def has_object_permission(self, request, view, obj):
+        return obj == request.user or request.user.is_staff
