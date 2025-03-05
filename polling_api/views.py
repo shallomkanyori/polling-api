@@ -1,10 +1,15 @@
-from rest_framework import permissions, viewsets
+from rest_framework import permissions, viewsets, status
 from rest_framework.response import Response
+from rest_framework.decorators import action
+from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
-from .models import Poll
-from .serializers import UserSerializer, PollSerializer
+from .models import Poll, Option, Vote
+from .serializers import UserSerializer, PollSerializer, VoteSerializer
 from .permissions import IsPollCreatorOrAdmin, IsSelfOrAdmin
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from .utils import get_ip_hash
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -35,3 +40,37 @@ class PollViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [AllowAny]
         return [permission() for permission in permission_classes]
+    
+    @swagger_auto_schema(
+        method='post',
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['option'],
+            properties={
+                'option': openapi.Schema(type=openapi.TYPE_INTEGER, description='Option ID to vote for'),
+            }
+        )
+    )
+    @action(detail=True, methods=['POST'])
+    def vote(self, request, pk=None):
+        """
+        API endpoint for voting in a poll
+        """
+        poll = get_object_or_404(Poll, pk=pk)
+
+        user = request.user
+        if not user or not user.is_authenticated or user.is_anonymous:
+            user = None
+            request.data['ip_hash'] = get_ip_hash(request.META['REMOTE_ADDR'])
+            
+            session_id = request.session.session_key
+            if not session_id:
+                request.session.create()
+                session_id = request.session.session_key
+            request.data['session_id'] = session_id
+        
+        serializer = VoteSerializer(data=request.data, context={'poll': poll, 'user': user})
+        if serializer.is_valid():
+            serializer.save(poll=poll)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

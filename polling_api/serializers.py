@@ -1,7 +1,8 @@
 from rest_framework import serializers
-from .models import Poll, Option
+from .models import Poll, Option, Vote
 from django.contrib.auth.models import User
 from django.db import transaction
+from django.utils import timezone
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,7 +30,7 @@ class UserSerializer(serializers.ModelSerializer):
 class OptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Option
-        fields = '__all__'
+        fields = ['text', 'id']
 
         def validate_text(self, text):
             poll = self.context.get('poll')
@@ -37,8 +38,42 @@ class OptionSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("This option already exists")
             return text
 
+class VoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vote
+        fields = '__all__'
+        extra_kwargs = {
+            'poll': {'required': False}
+        }
+
+    def validate(self, data):
+        poll = self.context.get('poll')
+        user = self.context.get('user')
+        option = data.get('option')
+        ip_hash = data.get('ip_hash')
+        session_id = data.get('session_id')
+
+        data['poll'] = poll
+        data['voted_by'] = user
+
+        if not poll.expire_date or poll.expire_date < timezone.now():
+            raise serializers.ValidationError("This poll has already expired")
+        
+        if user:
+            if poll.votes.filter(voted_by=user).exists():
+                raise serializers.ValidationError("You have already voted in this poll")
+        elif ip_hash and session_id:
+            if poll.votes.filter(ip_hash=ip_hash, session_id=session_id).exists():
+                raise serializers.ValidationError("You have already voted in this poll")
+        else:
+            raise serializers.ValidationError("You must be either authenticated or provide an IP address and session ID")
+        
+        if option not in poll.options.all():
+            raise serializers.ValidationError("This option is not part of the poll")
+        return data
+
 class PollSerializer(serializers.ModelSerializer):
-    options = serializers.StringRelatedField(many=True)
+    options = OptionSerializer(many=True)
 
     class Meta:
         model = Poll
@@ -52,6 +87,8 @@ class PollSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         options = validated_data.pop('options')
+
+        validated_data['created_by'] = self.context['request'].user
 
         with transaction.atomic():
             poll = Poll.objects.create(**validated_data)
