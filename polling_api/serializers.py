@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Poll, Option, Vote
 from django.contrib.auth.models import User
+from django.db.models import Count
 from django.db import transaction
 from django.utils import timezone
 
@@ -26,17 +27,6 @@ class UserSerializer(serializers.ModelSerializer):
         if password:
             instance.set_password(password)
         return super().partial_update(instance, validated_data)
-
-class OptionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Option
-        fields = ['text', 'id']
-
-        def validate_text(self, text):
-            poll = self.context.get('poll')
-            if poll and poll.options.filter(text__iexact=text).exists():
-                raise serializers.ValidationError("This option already exists")
-            return text
 
 class VoteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -71,6 +61,17 @@ class VoteSerializer(serializers.ModelSerializer):
         if option not in poll.options.all():
             raise serializers.ValidationError("This option is not part of the poll")
         return data
+
+class OptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Option
+        fields = ['text', 'id']
+
+        def validate_text(self, text):
+            poll = self.context.get('poll')
+            if poll and poll.options.filter(text__iexact=text).exists():
+                raise serializers.ValidationError("This option already exists")
+            return text
 
 class PollSerializer(serializers.ModelSerializer):
     options = OptionSerializer(many=True)
@@ -120,3 +121,17 @@ class PollSerializer(serializers.ModelSerializer):
             for opt in existing_options.values():
                 opt.delete()
         return instance
+
+class PollResultsSerializer(serializers.ModelSerializer):
+    results = serializers.SerializerMethodField()
+    total_votes = serializers.IntegerField(source='votes.count', read_only=True)
+
+    class Meta:
+        model = Poll
+        fields = ['id', 'title', 'description', 'total_votes', 'results', 'created_by', 'pub_date', 'expire_date']
+
+    def get_results(self, obj):
+        """
+        Returns a list of options and their vote counts
+        """
+        return obj.options.values('id', 'text').annotate(votes=Count('vote'))
