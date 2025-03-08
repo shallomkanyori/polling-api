@@ -58,6 +58,19 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+        'rest_framework.throttling.ScopedRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '5/minute',
+        'user': '100/hour',
+        'admin': '1000/hour',
+        'vote': '10/minute',
+        'poll_creation': '24/day',
+        'signup': '5/hour',
+    },
 }
 
 SIMPLE_JWT = {

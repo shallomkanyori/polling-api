@@ -12,6 +12,8 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import PollFilter
+from rest_framework.throttling import ScopedRateThrottle
+from .throttles import AdminThrottle, PollCreationThrottle, SignupThrottle
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -28,6 +30,10 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [IsAuthenticated, IsSelfOrAdmin]
         return [permission() for permission in permission_classes]
+    
+    def create(self, request, *args, **kwargs):
+        self.throttle_classes = [SignupThrottle]
+        return super().create(request, *args, **kwargs)
 
 class PollViewSet(viewsets.ModelViewSet):
     """
@@ -70,6 +76,10 @@ class PollViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
     
+    def create(self, request, *args, **kwargs):
+        self.throttle_classes = [PollCreationThrottle]
+        return super().create(request, *args, **kwargs)
+    
     @swagger_auto_schema(
         method='post',
         request_body=openapi.Schema(
@@ -85,6 +95,9 @@ class PollViewSet(viewsets.ModelViewSet):
         """
         API endpoint for voting in a poll
         """
+        self.throttle_classes = [ScopedRateThrottle, AdminThrottle]
+        self.throttle_scope = 'vote'
+
         poll = get_object_or_404(Poll, pk=pk)
 
         user = request.user
