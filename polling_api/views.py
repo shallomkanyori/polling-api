@@ -10,6 +10,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from .utils import get_ip_hash
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import PollFilter
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -33,6 +35,8 @@ class PollViewSet(viewsets.ModelViewSet):
     """
     queryset = Poll.objects.prefetch_related('options').all()
     serializer_class = PollSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = PollFilter
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
@@ -40,6 +44,31 @@ class PollViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [AllowAny]
         return [permission() for permission in permission_classes]
+    
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                'title',
+                openapi.IN_QUERY,
+                description='Filter by title',
+                type=openapi.TYPE_STRING
+            ),
+            openapi.Parameter(
+                'created_by',
+                openapi.IN_QUERY,
+                description='Filter by creator ID',
+                type=openapi.TYPE_INTEGER
+            ),
+            openapi.Parameter(
+                'is_ongoing',
+                openapi.IN_QUERY,
+                description='Filter ongoing polls',
+                type=openapi.TYPE_BOOLEAN
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
     
     @swagger_auto_schema(
         method='post',

@@ -8,6 +8,14 @@ class Poll(models.Model):
     pub_date = models.DateTimeField(auto_now=True, editable=False)
     expire_date = models.DateTimeField()
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['id']),
+            models.Index(fields=['created_by']),
+            models.Index(fields=['expire_date']),
+            models.Index(fields=['title']),
+        ]
+
     def __str__(self):
         return self.title
 
