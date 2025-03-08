@@ -3,12 +3,14 @@
 ## Overview
 This project is a RESTful API for creating and managing online polls. Users can create polls, vote on options, and retrieve real-time results. The backend is built with Django and Django Rest Framework, using PostgreSQL as the database and Swagger for API documentation.
 
+---
 ## Technologies Used
 - **Django**: Web framework for backend development.
 - **Django Rest Framework (DRF)**: API framework for Django.
 - **PostgreSQL**: Relational database for storing polls and votes.
 - **Swagger (drf-yasg)**: API documentation.
 
+---
 ## Installation & Setup
 
 ### Prerequisites
@@ -58,17 +60,55 @@ http://127.0.0.1:8000/api/docs/
 ```
 This will display the Swagger documentation for all available endpoints.
 
-## Running Tests
-Run the following command to execute tests:
-```sh
-python manage.py test
-```
+---
+## API Usage
+### Authentication
+- **Signup**: `POST /signup/`
+- **Login**: `POST /auth/login/`
+- **Logout**: `POST /auth/logout/`
+- **Get User Info**: `GET /users/{id}/`
+- **Delete Account**: `DELETE /users/{id}/`
 
+### Poll Management
+- **Create Poll**: `POST /polls/`
+- **List Polls**: `GET /polls/`
+- **Retrieve Poll**: `GET /polls/{id}/`
+- **Update Poll**: `PUT /polls/{id}/` (Only creator/admin)
+- **Delete Poll**: `DELETE /polls/{id}/` (Only creator/admin)
+
+### Voting
+- **Vote on a Poll**: `POST /polls/{id}/vote/`
+
+### Poll Results
+- **Get Poll Results**: `GET /polls/{id}/results/`
+
+### Filtering & Searching
+Polls can be filtered by:
+- Title: `GET /polls/?title=<search_term>`
+- Created by: `GET /polls/?created_by=<user_id>`
+- Ongoing Polls: `GET /polls/?ongoing=true`
+
+---
+## Rate Limiting
+Implemented rate limits:
+- **Voting**: Limited per IP/session
+- **Poll Creation**: Limited per user
+- **Signup**: Limited per IP
+
+---
 ## Deployment (Optional)
 To deploy the application, use services like Heroku, Render, or Railway. Update the `.env` file with production database credentials and configure allowed hosts in `settings.py`.
 
+---
+## Future Enhancements
+- WebSocket support for real-time poll updates
+- Implement poll categories
+- Email notifications for poll creators
+
+---
 ## Contributing
 Feel free to fork this repository and submit pull requests. Ensure that all changes are properly tested before submission.
 
+---
 ## License
 This project is open-source and available under the MIT License.
