@@ -34,7 +34,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['127.0.0.1', '.vercel.app']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.vercel.app']
 
 
 # Application definition
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_yasg',
     'django_filters',
+    'rest_framework_simplejwt.token_blacklist',
     'polling_api',
 ]
 
@@ -74,7 +75,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
 }
 
 SWAGGER_SETTINGS = {
@@ -167,3 +168,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Mail settings
+EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = env.int('EMAIL_PORT', default=587)
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
