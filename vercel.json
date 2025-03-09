@@ -2,12 +2,16 @@
     "builds": [
         {
             "src": "polling_api/wsgi.py",
-            "use": "@ardnt/vercel-python-wsgi",
+            "use": "@vercel/python",
             "config": {
                 "maxLambdaSize": "15mb",
-                "runtime": "python3.9",
-                "buildCommand": "pip install -r requirements.txt && python manage.py migrate"
+                "runtime": "python3.9"
             }
+        },
+        {
+            "src": "build_files.sh",
+            "use": "@vercel/static-build",
+            "config": { "distDir": "staticfiles_build" }
         }
     ],
     "routes": [
@@ -17,7 +21,7 @@
         },
         {
             "src": "/(.*)",
-            "dest": "/polling_api/wsgi.py"
+            "dest": "polling_api/wsgi.py"
         }
     ]
 }
