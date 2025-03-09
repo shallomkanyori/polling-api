@@ -68,30 +68,30 @@ You can explore the endpoints here:
 🔗 [Docs](https://polling-api-theta.vercel.app/api/docs/)
 
 ### Authentication
-- **Signup**: `POST /signup/`
-- **Login**: `POST /auth/login/`
-- **Logout**: `POST /auth/logout/`
-- **Get User Info**: `GET /users/{id}/`
-- **Delete Account**: `DELETE /users/{id}/`
+- **Signup**: `POST /api/signup/`
+- **Login**: `POST /api/auth/login/`
+- **Logout**: `POST /api/auth/logout/`
+- **Get User Info**: `GET /api/users/{id}/`
+- **Delete Account**: `DELETE /api/users/{id}/`
 
 ### Poll Management
-- **Create Poll**: `POST /polls/`
-- **List Polls**: `GET /polls/`
-- **Retrieve Poll**: `GET /polls/{id}/`
-- **Update Poll**: `PUT /polls/{id}/` (Only creator/admin)
-- **Delete Poll**: `DELETE /polls/{id}/` (Only creator/admin)
+- **Create Poll**: `POST /api/polls/`
+- **List Polls**: `GET /api/polls/`
+- **Retrieve Poll**: `GET /api/polls/{id}/`
+- **Update Poll**: `PUT /api/polls/{id}/` (Only creator/admin)
+- **Delete Poll**: `DELETE /api/polls/{id}/` (Only creator/admin)
 
 ### Voting
-- **Vote on a Poll**: `POST /polls/{id}/vote/`
+- **Vote on a Poll**: `POST /api/polls/{id}/vote/`
 
 ### Poll Results
-- **Get Poll Results**: `GET /polls/{id}/results/`
+- **Get Poll Results**: `GET /api/polls/{id}/results/`
 
 ### Filtering & Searching
 Polls can be filtered by:
-- Title: `GET /polls/?title=<search_term>`
-- Created by: `GET /polls/?created_by=<user_id>`
-- Ongoing Polls: `GET /polls/?ongoing=true`
+- Title: `GET /api/polls/?title=<search_term>`
+- Created by: `GET /api/polls/?created_by=<user_id>`
+- Ongoing Polls: `GET /api/polls/?ongoing=true`
 
 ---
 ## Rate Limiting
