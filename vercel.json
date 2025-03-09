@@ -1,7 +1,7 @@
 {
     "builds": [
         {
-            "src": "polling_api/wsgi.py",
+            "src": "polling_site/wsgi.py",
             "use": "@vercel/python",
             "config": {
                 "maxLambdaSize": "15mb",
@@ -21,7 +21,7 @@
         },
         {
             "src": "/(.*)",
-            "dest": "polling_api/wsgi.py"
+            "dest": "polling_site/wsgi.py"
         }
     ]
 }
