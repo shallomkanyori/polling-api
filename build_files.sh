@@ -1,5 +1,5 @@
 echo "Creating virtual environment..."
-python3.9 -m venv venv
+python -m venv venv
 
 echo "Activating virtual environment..."
 source venv/bin/activate
