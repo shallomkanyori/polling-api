@@ -1,4 +1,5 @@
 # Polling App API
+[![Live API](https://img.shields.io/badge/API-Live-brightgreen)](https://polling-api-theta.vercel.app/)
 
 ## Overview
 This project is a RESTful API for creating and managing online polls. Users can create polls, vote on options, and retrieve real-time results. The backend is built with Django and Django Rest Framework, using PostgreSQL as the database and Swagger for API documentation.
@@ -62,6 +63,10 @@ This will display the Swagger documentation for all available endpoints.
 
 ---
 ## API Usage
+The API is documented using Swagger UI.  
+You can explore the endpoints here:  
+🔗 [Docs](https://polling-api-theta.vercel.app/api/docs/)
+
 ### Authentication
 - **Signup**: `POST /signup/`
 - **Login**: `POST /auth/login/`
@@ -98,6 +103,9 @@ Implemented rate limits:
 ---
 ## Deployment (Optional)
 To deploy the application, use services like Heroku, Render, or Railway. Update the `.env` file with production database credentials and configure allowed hosts in `settings.py`.
+
+The API is deployed on **Vercel** and accessible at:
+🔗 [Live API](https://polling-api-theta.vercel.app/)
 
 ---
 ## Future Enhancements
